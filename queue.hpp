@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include <string>
-#include "node.hpp"
 using std::string;
 
 namespace ex6
@@ -16,45 +15,75 @@ namespace ex6
     template <class T = string>
     class Queue
     {
+    public:
+        template <class V = string>
+        struct Node{
+            V value;
+            Node<V>* next;
+            Node<V>* prev;
+        };
+
     private:
         size_t size;
         Node<T> *head;
         Node<T> *tail;
 
     public:
-        struct Node{
-            T value;
-            Node* next;
-            Node* prev;
-        };
+        Queue(){
+            this->head=NULL;
+            this->tail=NULL;
+            this->size=0;
+        }
 
-    public:
-        Queue();
-        ~Queue();
+        ~Queue()= default;
 
-        Node* getHead(){
+        Node<T>* getHead(){
             return this->head;
         }
-        Node* _getTail(){
+        Node<T>* _getTail(){
             return this->tail;
         }
         size_t _getSize(){
             return this->size;
         }
 
-        void _setHead(Node *new_head){
+        void _setHead(Node<T> *new_head){
             this->head=new_head;
         }
-        void _setTail(Node *new_tail){
+        void _setTail(Node<T> *new_tail){
             this->tail=new_tail;
         }
         void _setSize(size_t new_size){
             this->size=new_size;
         }
 
-        void enQ();
-        void deQ()
-        void _ToString();
+        void _enQ(T text){
+            Node<T> *node = new Node<T>(text); // 'new' is a memory allocation!
+            if (this->size == 0)
+            {
+                this->head = node;
+                this->tail = node;
+            }
+            else
+            {
+                node->_setPrev(this->tail);
+                this->tail->_setNext(node);
+                this->tail = node;
+            }
+            this->size += 1;
+        }
+
+        void _deQ(){
+            Node<T> *node = this->tail;
+            Node<T> *new_tail = this->tail->_getPrev();
+            new_tail->_setNext(NULL);
+            this->tail = new_tail;
+            return node->value;
+        }
+
+        void _ToString(){
+            // TODO: implement if needed
+        }
     };
 }
 
