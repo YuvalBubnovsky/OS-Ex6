@@ -24,64 +24,76 @@ namespace ex6
         };
 
     private:
-        size_t size;
-        Node<T> *head;
-        Node<T> *tail;
+        size_t m_size;
+        Node<T> *m_head;
+        Node<T> *m_tail;
 
     public:
         Queue(){
-            this->head=NULL;
-            this->tail=NULL;
-            this->size=0;
+            m_head = nullptr;
+            m_tail = nullptr;
+            m_size = 0;
         }
 
         ~Queue()= default;
 
-        Node<T>* getHead(){
-            return this->head;
-        }
-        Node<T>* _getTail(){
-            return this->tail;
-        }
-        size_t _getSize(){
-            return this->size;
+        Node<T>* m_getHead()
+        {
+            return this->m_head;
         }
 
-        void _setHead(Node<T> *new_head){
-            this->head=new_head;
-        }
-        void _setTail(Node<T> *new_tail){
-            this->tail=new_tail;
-        }
-        void _setSize(size_t new_size){
-            this->size=new_size;
+        Node<T>* m_getTail()
+        {
+            return this->m_tail;
         }
 
-        void _enQ(T text){
-            Node<T> *node = new Node<T>(text); // 'new' is a memory allocation!
-            if (this->size == 0)
+        size_t m_getSize(){
+            return this->m_size;
+        }
+
+        void m_setHead(Node<T> *new_head)
+        {
+            this->m_head=new_head;
+        }
+
+        void m_setTail(Node<T> *new_tail)
+        {
+            this->m_tail=new_tail;
+        }
+
+        void m_setSize(size_t new_size)
+        {
+            this->m_size=new_size;
+        }
+
+        void m_enQ(T text)
+        {
+            auto *node = new Node<T>(text); // 'new' is a memory allocation!
+            if (this->m_size == 0)
             {
-                this->head = node;
-                this->tail = node;
+                this->m_head = node;
+                this->m_tail = node;
             }
             else
             {
-                node->_setPrev(this->tail);
-                this->tail->_setNext(node);
-                this->tail = node;
+                node->_setPrev(this->m_tail);
+                this->m_tail->_setNext(node);
+                this->m_tail = node;
             }
-            this->size += 1;
+            this->m_size += 1;
         }
 
-        void _deQ(){
-            Node<T> *node = this->tail;
-            Node<T> *new_tail = this->tail->_getPrev();
+        void m_deQ()
+        {
+            Node<T> *node = this->m_tail;
+            Node<T> *new_tail = this->m_tail->_getPrev();
             new_tail->_setNext(NULL);
-            this->tail = new_tail;
+            this->m_tail = new_tail;
             return node->value;
         }
 
-        void _ToString(){
+        void m_ToString()
+        {
             // TODO: implement if needed
         }
     };
