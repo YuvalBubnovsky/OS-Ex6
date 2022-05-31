@@ -28,7 +28,7 @@ using namespace ex6;
 // Defining global queue and sending socket for client globally
 int new_sock = 0;
 
-Queue<string> q = new Queue<string>();
+Queue<>* q = new Queue<>();
 
 void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************** */
 {
@@ -49,7 +49,7 @@ void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************
 
 
     close(new_sock);
-    pthread_exit(NULL);
+    pthread_exit(nullptr);
 }
 
 void sigchld_handler(int s)
@@ -74,7 +74,7 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-int main(void)
+int main()
 {
 
     int sockfd, new_fd; // listen on sock_fd, new connection on new_fd
@@ -98,7 +98,7 @@ int main(void)
     }
 
     // loop through all the results and bind to the first we can
-    for (p = servinfo; p != NULL; p = p->ai_next)
+    for (p = servinfo; p != nullptr; p = p->ai_next)
     {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                              p->ai_protocol)) == -1)
@@ -126,7 +126,7 @@ int main(void)
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    if (p == NULL)
+    if (p == nullptr)
     {
         fprintf(stderr, "server: failed to bind\n");
         exit(1);
@@ -141,7 +141,7 @@ int main(void)
     sa.sa_handler = sigchld_handler; // reap all dead processes
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
-    if (sigaction(SIGCHLD, &sa, NULL) == -1)
+    if (sigaction(SIGCHLD, &sa, nullptr) == -1)
     {
         perror("sigaction");
         exit(1);
