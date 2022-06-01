@@ -3,4 +3,4 @@ project(Ex6)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Ex6 main.cpp queue.hpp)
+add_executable(Ex6 main.cpp queue.hpp active_object.hpp guard.hpp singleton.hpp)
