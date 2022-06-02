@@ -35,6 +35,14 @@ namespace ex6
     public:
 
         // TODO: add createQ & destroyQ functions
+        Queue<T>* createQ(){
+            auto* q = new Queue();
+            return q;
+        }
+
+        void destroyQ(){
+            ~Queue();
+        }
 
         Queue(){
             m_head = nullptr;

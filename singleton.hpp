@@ -14,17 +14,17 @@
 
 namespace ex6{
     template<typename T>
-    class singleton{
+    class Singleton{
     private:
         static T* _instance = nullptr; // is this okay?
         static pthread_mutex_t _mutex;
-        singleton()=default;
-        ~singleton() {
+        Singleton()=default;
+        ~Singleton() {
             delete this->_instance;
             this->_instance = nullptr;
         }
-        singleton& operator=(const singleton&){}
-        singleton(const singleton&)= default;
+        Singleton& operator=(const Singleton&){}
+        Singleton(const Singleton&)= default;
 
     public:
         static T* Instance(){

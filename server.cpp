@@ -3,7 +3,7 @@
 //
 
 #include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -16,6 +16,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include "queue.hpp"
+#include "active_object.hpp"
 
 using std::string;
 using namespace ex6;
@@ -28,7 +29,66 @@ using namespace ex6;
 // Defining global queue and sending socket for client globally
 int new_sock = 0;
 
-Queue<>* q = new Queue<>();
+Queue<>* queue_1;
+Queue<>* queue_2;
+Queue<>* queue_3;
+activeObject<>* AO_1;
+activeObject<>* AO_2;
+activeObject<>* AO_3;
+
+void caesar_cypher (void* data) {
+    char ch;
+    int key = 1;
+    char* msg = (char*) data;
+
+    for(int i = 0; msg[i] != '\0'; ++i) {
+        ch = msg[i];
+
+        //encrypt for lowercase letter
+        if (ch >= 'a' && ch <= 'z'){
+            ch = ch + key;
+            if (ch > 'z') {
+                ch = ch - 'z' + 'a' - 1;
+            }
+            msg[i] = ch;
+        }
+            //encrypt for uppercase letter
+        else if (ch >= 'A' && ch <= 'Z'){
+            ch = ch + key;
+            if (ch > 'Z'){
+                ch = ch - 'Z' + 'A' - 1;
+            }
+            msg[i] = ch;
+        }
+    }
+}
+
+void convert (void* data) {
+    char ch;
+    int key = 1;
+    char* msg = (char*) data;
+    for (int i = 0; msg[i] != '\0'; ++i) {
+        ch = msg[i];
+        //convert for lowercase letter
+        if (ch >= 'a' && ch <= 'z'){
+            ch = (ch - 'a') + 'A';
+            msg[i] = ch;
+        }
+            //convert for uppercase letter
+        else if (ch >= 'A' && ch <= 'Z') {
+            ch = (ch - 'A') + 'a';
+            msg[i] = ch;
+        }
+    }
+}
+
+void enQ_middle(void* x) {
+    queue_2->m_enQ(x);
+}
+
+void enQ_end(void* x) {
+    queue_3->m_enQ(x);
+}
 
 void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************** */
 {
@@ -44,7 +104,7 @@ void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************
     buffer[n]='\0';
     if(!strncmp(buffer,"enQ",4)){
         string substring = buffer + 5;
-        q->_enQ(string(substring));
+        queue_1->m_enQ(string(substring));
     }
 
 
@@ -86,12 +146,23 @@ int main()
     char s[INET6_ADDRSTRLEN];
     int rv;
 
+    // Initializing the queues
+    queue_1 = queue_1->createQ();
+    queue_2 = queue_2->createQ();
+    queue_3 = queue_3->createQ();
+
+    // Initializing the active objects
+    AO_1 = new activeObject<>(queue_1, &caesar_cypher, &enQ_middle);
+    AO_2 = new activeObject<>(queue_2, &convert, &enQ_end);
+    AO_3 = new activeObject<>(queue_3, &sock_thread, &sock_thread);
+
+
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // use my IP
 
-    if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0)
+    if ((rv = getaddrinfo(nullptr, PORT, &hints, &servinfo)) != 0)
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;

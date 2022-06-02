@@ -17,11 +17,11 @@ namespace ex6 {
     class activeObject {
     private:
         Queue<T> *queue;
-        pthread_t thread;
+        pthread_t thread{};
 
-        void *(*for_each)(void *value);
+        void *(*for_each)(void *value){};
 
-        void *(*finally)(void *value);
+        void *(*finally)(void *value){};
 
     public:
 
@@ -30,7 +30,7 @@ namespace ex6 {
 
         activeObject(Queue<T> *q, void *(*func1)(void *value), void *(*func2)(void *value)) : queue(q), for_each(func1),
                                                                                               finally(func2) {
-            pthread_create(&thread, nullptr, &activeObject::handler, &(*this));
+            pthread_create(&thread, nullptr, &handler, &(*this));
         }
 
         ~activeObject(){

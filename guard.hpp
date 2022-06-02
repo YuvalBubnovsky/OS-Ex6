@@ -2,6 +2,14 @@
 // Created by yuval on 6/1/22.
 //
 
+
+/* Q4 Answer:
+ * When working with multiple threads, this guard cannot protect strtok
+ * since multiple threads may be calling strtok with different string.
+ * strtok will only keep track of the last string and eventually will
+ * return the wrong result
+ */
+
 #ifndef EX6_GUARD_HPP
 #define EX6_GUARD_HPP
 
