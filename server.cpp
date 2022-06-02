@@ -21,42 +21,53 @@
 using std::string;
 using namespace ex6;
 
-
 #define PORT "3490" // the port users will be connecting to
 
 #define BACKLOG 10 // how many pending connections queue will hold
 
+typedef struct for_sending
+{
+    string val;
+    int *fd;
+} *fs;
+
 // Defining global queue and sending socket for client globally
 int new_sock = 0;
 
-Queue<>* queue_1;
-Queue<>* queue_2;
-Queue<>* queue_3;
-activeObject<>* AO_1;
-activeObject<>* AO_2;
-activeObject<>* AO_3;
+Queue<> *queue_1;
+Queue<> *queue_2;
+Queue<> *queue_3;
+activeObject<> *AO_1;
+activeObject<> *AO_2;
+activeObject<> *AO_3;
 
-void caesar_cypher (void* data) {
-    //TODO:
+void caesar_cypher(void *data)
+{
+    // TODO:
     char ch;
     int key = 1;
-    char* msg = (char*) data;
+    char *msg = (char *)data;
 
-    for(int i = 0; msg[i] != '\0'; ++i) {
+    for (int i = 0; msg[i] != '\0'; ++i)
+    {
         ch = msg[i];
 
-        //encrypt for lowercase letter
-        if (ch >= 'a' && ch <= 'z'){
+        // encrypt for lowercase letter
+        if (ch >= 'a' && ch <= 'z')
+        {
             ch = ch + key;
-            if (ch > 'z') {
+            if (ch > 'z')
+            {
                 ch = ch - 'z' + 'a' - 1;
             }
             msg[i] = ch;
         }
-            //encrypt for uppercase letter
-        else if (ch >= 'A' && ch <= 'Z'){
+        // encrypt for uppercase letter
+        else if (ch >= 'A' && ch <= 'Z')
+        {
             ch = ch + key;
-            if (ch > 'Z'){
+            if (ch > 'Z')
+            {
                 ch = ch - 'Z' + 'A' - 1;
             }
             msg[i] = ch;
@@ -64,36 +75,49 @@ void caesar_cypher (void* data) {
     }
 }
 
-void convert (void* data) {
-    //TODO
+void convert(void *data)
+{
+    // TODO
     char ch;
     int key = 1;
-    char* msg = (char*) data;
-    for (int i = 0; msg[i] != '\0'; ++i) {
+    char *msg = (char *)data;
+    for (int i = 0; msg[i] != '\0'; ++i)
+    {
         ch = msg[i];
-        //convert for lowercase letter
-        if (ch >= 'a' && ch <= 'z'){
+        // convert for lowercase letter
+        if (ch >= 'a' && ch <= 'z')
+        {
             ch = (ch - 'a') + 'A';
             msg[i] = ch;
         }
-            //convert for uppercase letter
-        else if (ch >= 'A' && ch <= 'Z') {
+        // convert for uppercase letter
+        else if (ch >= 'A' && ch <= 'Z')
+        {
             ch = (ch - 'A') + 'a';
             msg[i] = ch;
         }
     }
 }
 
-void sendto (void* _fd)
+void sendto(void *args)
 {
-    int *fd = (int *)_fd;
+    for_sending* arguments = (for_sending*)args;
+    int *fd = arguments->fd;
+    string s = arguments->val;
+    int n = s.length();
+    char to_send[n + 1];
+    strcpy(to_send, s.c_str());
+    to_send[n] = '\0';
+    send(*fd, to_send, strlen(to_send), 0);
 }
 
-void enQ_middle(void* x) {
+void enQ_middle(void *x)
+{
     queue_2->m_enQ((string *)x);
 }
 
-void enQ_end(void* x) {
+void enQ_end(void *x)
+{
     queue_3->m_enQ((string *)x);
 }
 
@@ -111,12 +135,12 @@ void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************
     sleep(1);
 
     n = recv(new_sock, &buffer, sizeof(buffer), 0);
-    buffer[n]='\0';
-    if(!strncmp(buffer,"enQ",4)){
+    buffer[n] = '\0';
+    if (!strncmp(buffer, "enQ", 4))
+    {
         string substring = buffer + 5;
-        queue_1->m_enQ(&substring); //TODO: potential rvalue reference error!
+        queue_1->m_enQ(&substring); // TODO: potential rvalue reference error!
     }
-
 
     close(new_sock);
     pthread_exit(nullptr);
@@ -164,8 +188,7 @@ int main()
     // Initializing the active objects
     AO_1 = new activeObject<>(queue_1, &caesar_cypher, &enQ_middle);
     AO_2 = new activeObject<>(queue_2, &convert, &enQ_end);
-    AO_3 = new activeObject<>(queue_3, &sock_thread, &sock_thread);  //TODO: needs to be (queue_3, send_to_client, nullptr) !
-
+    AO_3 = new activeObject<>(queue_3, &sock_thread, &sock_thread); // TODO: needs to be (queue_3, send_to_client, nullptr) !
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
