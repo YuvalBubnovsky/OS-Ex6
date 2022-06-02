@@ -21,9 +21,9 @@ namespace ex6
         Queue<T> *queue;
         pthread_t thread;
 
-        void (*for_each)(void *value){};
+        void (*process)(void *value){};
 
-        void (*finally)(void *value){};
+        void (*forward)(void *value){};
 
     public:
         void handler()
@@ -36,8 +36,8 @@ namespace ex6
                     auto *item = q.m_deQ();
                     if (item != nullptr)
                     {
-                        this->for_each(item);
-                        this->finally(item);
+                        this->process(item);
+                        this->forward(item);
                     }
                 }
             }
@@ -46,9 +46,10 @@ namespace ex6
         // TODO: add newAO & destroyAO
         activeObject() = default;
 
-        activeObject(Queue<T> *q, void (*func1)(void *value), void (*func2)(void *value)) : queue(q), for_each(func1),
-                                                                                            finally(func2)
+        activeObject(Queue<T> *q, void (*func1)(void *value), void (*func2)(void *value)) : queue(q)
         {
+            process = func1;
+            forward = func2;
             pthread_create(&thread, nullptr, &handler, nullptr);
         }
 
