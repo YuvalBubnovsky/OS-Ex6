@@ -188,7 +188,7 @@ int main()
     // Initializing the active objects
     AO_1 = new activeObject<>(queue_1, &caesar_cypher, &enQ_middle);
     AO_2 = new activeObject<>(queue_2, &convert, &enQ_end);
-    AO_3 = new activeObject<>(queue_3, &sock_thread, &sock_thread); // TODO: needs to be (queue_3, send_to_client, nullptr) !
+    AO_3 = new activeObject<>(queue_3, &sendto, nullptr);
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
