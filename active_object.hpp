@@ -19,25 +19,26 @@ namespace ex6
     {
     private:
         Queue<T> *queue;
-        pthread_t thread;
+        pthread_t thread{};
 
         void (*process)(void *value){};
 
         void (*forward)(void *value){};
 
     public:
-        void handler()
+        static void* handler(void* t)
         {
-            auto q = (*this->queue);
-            while (1)
+            auto ao = (activeObject<T>*)t;
+            auto q = ao->queue;
+            while (true)
             {
-                if (!q.m_isEmpty())
+                if (!q->m_isEmpty())
                 {
-                    auto *item = q.m_deQ();
+                    auto *item = q->m_deQ();
                     if (item != nullptr)
                     {
-                        this->process(item);
-                        this->forward(item);
+                        ao->process(item);
+                        ao->forward(item);
                     }
                 }
             }
@@ -50,7 +51,7 @@ namespace ex6
         {
             process = func1;
             forward = func2;
-            pthread_create(&thread, nullptr, &handler, nullptr);
+            pthread_create(&thread, nullptr, handler, this);
         }
 
         ~activeObject()
