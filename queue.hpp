@@ -23,6 +23,8 @@ namespace ex6
             V value;
             Node<V>* next;
             Node<V>* prev;
+
+            Node(V& val) : value(val) {}
         };
 
     private:
@@ -94,6 +96,7 @@ namespace ex6
 
         void m_enQ(T* text)
         {
+            //TODO: code isnt valid.
             pthread_mutex_lock(&lock);
             auto *node = new Node<T>(*text); // 'new' is a memory allocation!
             if (this->m_size == 0)

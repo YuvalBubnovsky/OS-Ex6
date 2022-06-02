@@ -37,6 +37,7 @@ activeObject<>* AO_2;
 activeObject<>* AO_3;
 
 void caesar_cypher (void* data) {
+    //TODO:
     char ch;
     int key = 1;
     char* msg = (char*) data;
@@ -64,6 +65,7 @@ void caesar_cypher (void* data) {
 }
 
 void convert (void* data) {
+    //TODO
     char ch;
     int key = 1;
     char* msg = (char*) data;
@@ -82,6 +84,11 @@ void convert (void* data) {
     }
 }
 
+void sendto (void* _fd)
+{
+    int *fd = (int *)_fd;
+}
+
 void enQ_middle(void* x) {
     queue_2->m_enQ((string *)x);
 }
@@ -92,6 +99,9 @@ void enQ_end(void* x) {
 
 void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************** */
 {
+    /**
+     * arg is a fd for a socket (client)
+     */
     int n;
     char buffer[2048];
     char **args;

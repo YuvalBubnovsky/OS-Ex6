@@ -19,9 +19,9 @@ namespace ex6 {
         Queue<T> *queue;
         pthread_t thread{};
 
-        void *(*for_each)(void *value){};
+        void (*for_each)(void *value){};
 
-        void *(*finally)(void *value){};
+        void (*finally)(void *value){};
 
     public:
 
