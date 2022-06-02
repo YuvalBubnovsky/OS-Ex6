@@ -15,21 +15,24 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <pthread.h>
+
+#include <utility>
 #include "queue.hpp"
 #include "active_object.hpp"
 
-using std::string;
+using namespace std;
 using namespace ex6;
 
 #define PORT "3490" // the port users will be connecting to
 
 #define BACKLOG 10 // how many pending connections queue will hold
 
-typedef struct for_sending
+struct fs
 {
     string val;
     int *fd;
-} *fs;
+    fs(string val, int *fd) : val(std::move(val)), fd(fd) {}
+};
 
 // Defining global queue and sending socket for client globally
 int new_sock = 0;
@@ -46,7 +49,12 @@ void caesar_cypher(void *data)
     // TODO:
     char ch;
     int key = 1;
-    char *msg = (char *)data;
+    auto *node = (Queue<>::Node<> *)data;
+    string *msg = &node->value;
+    *msg = "a";
+
+    /*
+    char *msg = node->value.c_str();
 
     for (int i = 0; msg[i] != '\0'; ++i)
     {
@@ -72,13 +80,17 @@ void caesar_cypher(void *data)
             }
             msg[i] = ch;
         }
-    }
+    }*/
 }
 
 void convert(void *data)
 {
+    auto *node = (Queue<>::Node<> *)data;
+    string *msg = &node->value;
+    *msg = "A";
+}
     // TODO
-    char ch;
+    /*char ch;
     //int key = 1;
     char *msg = (char *)data;
     for (int i = 0; msg[i] != '\0'; ++i)
@@ -97,28 +109,30 @@ void convert(void *data)
             msg[i] = ch;
         }
     }
-}
+}*/
 
-void sendto(void *args)
+void sendto(void *data)
 {
-    for_sending* arguments = (for_sending*)args;
-    int *fd = arguments->fd;
-    string s = arguments->val;
+    auto *node = (Queue<>::Node<> *)data;
+    string *msg = &node->value;
+    string s = *msg;
     int n = s.length();
     char to_send[n + 1];
     strcpy(to_send, s.c_str());
     to_send[n] = '\0';
-    send(*fd, to_send, strlen(to_send), 0);
+    send(new_sock, to_send, strlen(to_send), 0);
 }
 
 void enQ_middle(void *x)
 {
     queue_2->m_enQ((string *)x);
+    cout << *(string *)x << endl;
 }
 
 void enQ_end(void *x)
 {
     queue_3->m_enQ((string *)x);
+    cout << *(string *)x << endl;
 }
 
 void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************** */
@@ -134,13 +148,11 @@ void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************
     printf("DEBUG: New connection from %d\n", new_sock); // DEBUG ONLY
     sleep(1);
 
+
     n = recv(new_sock, &buffer, sizeof(buffer), 0);
     buffer[n] = '\0';
-    if (!strncmp(buffer, "enQ", 4))
-    {
-        string substring = buffer + 5;
-        queue_1->m_enQ(&substring); // TODO: potential rvalue reference error!
-    }
+    string s = buffer;
+    queue_1->m_enQ(&s); // TODO: potential rvalue reference error!
 
     close(new_sock);
     pthread_exit(nullptr);

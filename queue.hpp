@@ -19,14 +19,16 @@ namespace ex6
     {
     public:
         template <class V = string>
-        struct Node{
+        class Node{ // acts like struct
+        public:
             V value;
-            Node<V>* next;
-            Node<V>* prev;
+            Node<V>* next = nullptr;
+            Node<V>* prev = nullptr;
 
-            Node(V& val) : value(val) {}
+        public:
+            explicit Node(V& val) : value(val) {}
             void _setPrev(Node<V>* new_prev) {this->prev = new_prev;}
-            void _setNext(Node<V>* new_next) {this->prev = new_next;}
+            void _setNext(Node<V>* new_next) {this->next = new_next;}
             Node<V>* _getPrev() {return this->prev;}
             Node<V>* _getNext() {return this->next;}
         };
@@ -35,6 +37,7 @@ namespace ex6
         size_t m_size;
         Node<T> *m_head;
         Node<T> *m_tail;
+
         pthread_mutex_t lock{};
         pthread_cond_t condi{}; // GW2 reference
 
@@ -127,10 +130,16 @@ namespace ex6
             }
             Node<T> *node = this->m_tail;
             Node<T> *new_tail = this->m_tail->_getPrev();
-            new_tail->_setNext(NULL);
-            this->m_tail = new_tail;
+            if(new_tail!=nullptr) {
+                new_tail->_setNext(nullptr);
+                this->m_tail = new_tail;
+            }
+            else{
+                this->m_head = nullptr;
+                this->m_tail = nullptr;
+            }
             pthread_mutex_unlock(&lock);
-            return (void *)&node->value;
+            return (void *)&(*node);
         }
 
         void m_ToString()

@@ -28,8 +28,8 @@ namespace ex6
     public:
         static void* handler(void* t)
         {
-            auto ao = (activeObject<T>*)t;
-            auto q = ao->queue;
+            auto* ao = (activeObject<T>*)t;
+            auto* q = ao->queue;
             while (true)
             {
                 if (!q->m_isEmpty())
