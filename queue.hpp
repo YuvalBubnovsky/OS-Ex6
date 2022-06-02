@@ -92,10 +92,10 @@ namespace ex6
             this->m_size=new_size;
         }
 
-        void m_enQ(T text)
+        void m_enQ(T* text)
         {
             pthread_mutex_lock(&lock);
-            auto *node = new Node<T>(text); // 'new' is a memory allocation!
+            auto *node = new Node<T>(*text); // 'new' is a memory allocation!
             if (this->m_size == 0)
             {
                 this->m_head = node;

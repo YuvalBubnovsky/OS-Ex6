@@ -28,7 +28,7 @@ namespace ex6 {
         // TODO: add newAO & destroyAO
         activeObject() = default;
 
-        activeObject(Queue<T> *q, void *(*func1)(void *value), void *(*func2)(void *value)) : queue(q), for_each(func1),
+        activeObject(Queue<T> *q, void(*func1)(void *value), void(*func2)(void *value)) : queue(q), for_each(func1),
                                                                                               finally(func2) {
             pthread_create(&thread, nullptr, &handler, &(*this));
         }

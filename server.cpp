@@ -83,11 +83,11 @@ void convert (void* data) {
 }
 
 void enQ_middle(void* x) {
-    queue_2->m_enQ(x);
+    queue_2->m_enQ((string *)x);
 }
 
 void enQ_end(void* x) {
-    queue_3->m_enQ(x);
+    queue_3->m_enQ((string *)x);
 }
 
 void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************** */
@@ -104,7 +104,7 @@ void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************
     buffer[n]='\0';
     if(!strncmp(buffer,"enQ",4)){
         string substring = buffer + 5;
-        queue_1->m_enQ(string(substring));
+        queue_1->m_enQ(&substring); //TODO: potential rvalue reference error!
     }
 
 
@@ -154,7 +154,7 @@ int main()
     // Initializing the active objects
     AO_1 = new activeObject<>(queue_1, &caesar_cypher, &enQ_middle);
     AO_2 = new activeObject<>(queue_2, &convert, &enQ_end);
-    AO_3 = new activeObject<>(queue_3, &sock_thread, &sock_thread);
+    AO_3 = new activeObject<>(queue_3, &sock_thread, &sock_thread);  //TODO: needs to be (queue_3, send_to_client, nullptr) !
 
 
     memset(&hints, 0, sizeof hints);
