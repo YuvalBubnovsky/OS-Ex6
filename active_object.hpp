@@ -19,14 +19,29 @@ namespace ex6
     {
     private:
         Queue<T> *queue;
-        pthread_t thread{};
+        pthread_t thread;
 
         void (*for_each)(void *value){};
 
         void (*finally)(void *value){};
 
     public:
-        
+        void handler()
+        {
+            auto q = (*this->queue);
+            while (1)
+            {
+                if (!q.m_isEmpty())
+                {
+                    auto *item = q.m_deQ();
+                    if (item != nullptr)
+                    {
+                        this->for_each(item);
+                        this->finally(item);
+                    }
+                }
+            }
+        }
 
         // TODO: add newAO & destroyAO
         activeObject() = default;
@@ -34,27 +49,13 @@ namespace ex6
         activeObject(Queue<T> *q, void (*func1)(void *value), void (*func2)(void *value)) : queue(q), for_each(func1),
                                                                                             finally(func2)
         {
-            pthread_create(&thread, nullptr, &handler, &(*this));
+            pthread_create(&thread, nullptr, &handler, nullptr);
         }
 
         ~activeObject()
         {
             pthread_cancel(thread);
             // TODO: is anything more needed?
-        }
-
-        void *handler(activeObject<T> *AO)
-        {
-            auto q = (*this->queue);
-            while (!q.m_isEmpty())
-            {
-                auto *item = q.m_deQ();
-                if (item != nullptr)
-                {
-                    void *function1_result = AO->for_each(item);
-                    void *final_result = AO->finally(function1_result);
-                }
-            }
         }
     };
 }

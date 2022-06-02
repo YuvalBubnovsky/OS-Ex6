@@ -79,7 +79,7 @@ void convert(void *data)
 {
     // TODO
     char ch;
-    int key = 1;
+    //int key = 1;
     char *msg = (char *)data;
     for (int i = 0; msg[i] != '\0'; ++i)
     {
@@ -128,7 +128,7 @@ void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************
      */
     int n;
     char buffer[2048];
-    char **args;
+    //char **args;
     new_sock = *((int *)arg);
     bzero(buffer, 2048);
     printf("DEBUG: New connection from %d\n", new_sock); // DEBUG ONLY

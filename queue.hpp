@@ -25,6 +25,10 @@ namespace ex6
             Node<V>* prev;
 
             Node(V& val) : value(val) {}
+            void _setPrev(Node<V>* new_prev) {this->prev = new_prev;}
+            void _setNext(Node<V>* new_next) {this->prev = new_next;}
+            Node<V>* _getPrev() {return this->prev;}
+            Node<V>* _getNext() {return this->next;}
         };
 
     private:
@@ -126,7 +130,7 @@ namespace ex6
             new_tail->_setNext(NULL);
             this->m_tail = new_tail;
             pthread_mutex_unlock(&lock);
-            return node->value;
+            return (void *)&node->value;
         }
 
         void m_ToString()
