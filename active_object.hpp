@@ -38,7 +38,10 @@ namespace ex6
                     if (item != nullptr)
                     {
                         ao->process(item);
-                        ao->forward(item);
+                        if(ao->forward != nullptr)
+                        {
+                            ao->forward(item);
+                        }
                     }
                 }
             }

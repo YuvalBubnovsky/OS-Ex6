@@ -43,7 +43,6 @@ namespace ex6
 
     public:
 
-        // TODO: add createQ & destroyQ functions
         Queue<T>* createQ(){
             auto* q = new Queue();
             return q;
@@ -138,6 +137,7 @@ namespace ex6
                 this->m_head = nullptr;
                 this->m_tail = nullptr;
             }
+            this->m_size -= 1;
             pthread_mutex_unlock(&lock);
             return (void *)&(*node);
         }

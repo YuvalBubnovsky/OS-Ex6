@@ -144,15 +144,17 @@ void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************
     char buffer[2048];
     //char **args;
     new_sock = *((int *)arg);
-    bzero(buffer, 2048);
     printf("DEBUG: New connection from %d\n", new_sock); // DEBUG ONLY
     sleep(1);
 
-
-    n = recv(new_sock, &buffer, sizeof(buffer), 0);
-    buffer[n] = '\0';
-    string s = buffer;
-    queue_1->m_enQ(&s); // TODO: potential rvalue reference error!
+    while (true) //todo: how does it know to exit this?
+    {
+        bzero(buffer, 2048);
+        n = recv(new_sock, &buffer, sizeof(buffer), 0);
+        buffer[n] = '\0';
+        string s = buffer;
+        queue_1->m_enQ(&s);
+    }
 
     close(new_sock);
     pthread_exit(nullptr);
