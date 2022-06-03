@@ -60,7 +60,15 @@ namespace ex6
         ~activeObject()
         {
             pthread_cancel(thread);
-            // TODO: is anything more needed?
+        }
+
+        activeObject<T>* createQ(){
+            auto* q = new activeObject();
+            return q;
+        }
+
+        void destroyQ(void* actv_obj){
+            delete ( activeObject<T>*)actv_obj;
         }
     };
 }
