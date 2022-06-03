@@ -13,14 +13,12 @@ server: server.cpp
 client: client.cpp
 	$(CC) $(CFLAGS) -o client client.cpp $(LDFLAGS)
 
-poll: poll_server.o reactor.o
-	$(CXX) $(CFLAGS) poll_server.o reactor.o -o poll_server $(LDFLAGS)
+poll: poll_server.o
+	$(CXX) $(CFLAGS) poll_server.o reactor.hpp -o poll_server $(LDFLAGS)
 
 poll_server.o: $(HEADERS)  poll_server.cpp
 	$(CXX) $(CFLAGS) -c poll_server.cpp $(LDFLAGS)
 
-reactor.o: $(HEADERS)  reactor.cpp
-	$(CXX) $(CFLAGS) -c reactor.cpp
 
 clean:
 	rm -f server client poll_server  *.o *.a
