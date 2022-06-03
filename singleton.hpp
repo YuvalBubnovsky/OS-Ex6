@@ -8,7 +8,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <pthread.h>
-#include "guard.hpp"
 
 // used https://stackoverflow.com/questions/42555782/singleton-with-template for reference
 
@@ -16,9 +15,12 @@ namespace ex6{
     template<typename T>
     class Singleton{
     private:
-        static T* _instance = nullptr; // is this okay?
-        static pthread_mutex_t _mutex;
-        Singleton()=default;
+        __attribute__((unused)) static Singleton* _instance;
+        __attribute__((unused)) static pthread_mutex_t _mutex;
+        __attribute__((unused)) T _value;
+        explicit Singleton(T junk){
+            _value = junk;
+        }
         ~Singleton() {
             delete this->_instance;
             this->_instance = nullptr;
@@ -27,17 +29,19 @@ namespace ex6{
         Singleton(const Singleton&)= default;
 
     public:
-        static T* Instance(){
+        static Singleton* Instance(T junk){
             if(_instance== nullptr){
                 pthread_mutex_lock(&_mutex);
                 if(_instance==nullptr){
-                    _instance = new T();
+                    _instance = new Singleton(junk);
                 }
                 pthread_mutex_unlock(&_mutex);
             }
             return _instance;
         }
     };
+    template<typename T> Singleton<T> *Singleton<T>::_instance = nullptr;
+    template<typename T> pthread_mutex_t Singleton<T>::_mutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
 #endif //EX6_SINGLETON_HPP
