@@ -46,71 +46,53 @@ activeObject<> *AO_3;
 
 void caesar_cypher(void *data)
 {
-    // TODO:
-    char ch;
-    int key = 1;
+    // https://codereview.stackexchange.com/questions/102031/encode-a-string-using-caesars-cipher
+    unsigned int key = 1;
     auto *node = (Queue<>::Node<> *)data;
     string *msg = &node->value;
-    *msg = "a";
 
-    /*
-    char *msg = node->value.c_str();
-
-    for (int i = 0; msg[i] != '\0'; ++i)
+    unsigned int i,j;
+    for (i = 0; i < (*msg).length(); i++) // iterates over every letter in our string
     {
-        ch = msg[i];
+        if (isalpha((*msg)[i])) //if msg[i] is an alphabetic character.
+        {
+            for (j = 0; j < key; j++) // shifts said letter by the amount specified in the key variable
+            {
+                if ((*msg)[i] == 'z')
+                {
+                    (*msg)[i] = 'a';
+                }
+                else if ((*msg)[i] == 'Z')
+                {
+                    (*msg)[i] = 'A';
+                }
+                else
+                {
+                    (*msg)[i]++;
+                }
+            }
+        }
+    }
 
-        // encrypt for lowercase letter
-        if (ch >= 'a' && ch <= 'z')
-        {
-            ch = ch + key;
-            if (ch > 'z')
-            {
-                ch = ch - 'z' + 'a' - 1;
-            }
-            msg[i] = ch;
-        }
-        // encrypt for uppercase letter
-        else if (ch >= 'A' && ch <= 'Z')
-        {
-            ch = ch + key;
-            if (ch > 'Z')
-            {
-                ch = ch - 'Z' + 'A' - 1;
-            }
-            msg[i] = ch;
-        }
-    }*/
 }
 
-void convert(void *data)
+void convert(void *data) // https://www.geeksforgeeks.org/convert-alternate-characters-string-upper-case/
 {
     auto *node = (Queue<>::Node<> *)data;
     string *msg = &node->value;
-    *msg = "A";
-}
-    // TODO
-    /*char ch;
-    //int key = 1;
-    char *msg = (char *)data;
-    for (int i = 0; msg[i] != '\0'; ++i)
+
+    for (unsigned int i = 0; i < (*msg).length(); i++)
     {
-        ch = msg[i];
-        // convert for lowercase letter
-        if (ch >= 'a' && ch <= 'z')
-        {
-            ch = (ch - 'a') + 'A';
-            msg[i] = ch;
-        }
-        // convert for uppercase letter
-        else if (ch >= 'A' && ch <= 'Z')
-        {
-            ch = (ch - 'A') + 'a';
-            msg[i] = ch;
-        }
+        if ((*msg)[i] >= 'a' && (*msg)[i] <= 'z')
+            // Convert lowercase to uppercase
+            (*msg)[i] = (*msg)[i] - 32;
+        else if ((*msg)[i] >= 'A' && (*msg)[i] <= 'Z')
+            // Convert uppercase to lowercase
+            (*msg)[i] = (*msg)[i] + 32;
     }
-}*/
- // test commit
+
+}
+
 void sendto(void *data)
 {
     auto *node = (Queue<>::Node<> *)data;
@@ -126,13 +108,13 @@ void sendto(void *data)
 void enQ_middle(void *x)
 {
     queue_2->m_enQ((string *)x);
-    cout << *(string *)x << endl;
+    //cout << *(string *)x << endl;
 }
 
 void enQ_end(void *x)
 {
     queue_3->m_enQ((string *)x);
-    cout << *(string *)x << endl;
+    //cout << *(string *)x << endl;
 }
 
 void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************** */
@@ -144,15 +126,17 @@ void *sock_thread(void *arg) /* ***************** THREAD HANDLER ***************
     char buffer[2048];
     //char **args;
     new_sock = *((int *)arg);
-    bzero(buffer, 2048);
     printf("DEBUG: New connection from %d\n", new_sock); // DEBUG ONLY
     sleep(1);
 
-
-    n = recv(new_sock, &buffer, sizeof(buffer), 0);
-    buffer[n] = '\0';
-    string s = buffer;
-    queue_1->m_enQ(&s); // TODO: potential rvalue reference error!
+    while (true) //todo: how does it know to exit this?
+    {
+        bzero(buffer, 2048);
+        n = recv(new_sock, &buffer, sizeof(buffer), 0);
+        buffer[n] = '\0';
+        string s = buffer;
+        queue_1->m_enQ(&s);
+    }
 
     close(new_sock);
     pthread_exit(nullptr);

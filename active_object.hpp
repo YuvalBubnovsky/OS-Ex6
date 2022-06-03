@@ -38,7 +38,10 @@ namespace ex6
                     if (item != nullptr)
                     {
                         ao->process(item);
-                        ao->forward(item);
+                        if(ao->forward != nullptr)
+                        {
+                            ao->forward(item);
+                        }
                     }
                 }
             }
@@ -57,7 +60,15 @@ namespace ex6
         ~activeObject()
         {
             pthread_cancel(thread);
-            // TODO: is anything more needed?
+        }
+
+        activeObject<T>* createQ(){
+            auto* q = new activeObject();
+            return q;
+        }
+
+        void destroyQ(void* actv_obj){
+            delete ( activeObject<T>*)actv_obj;
         }
     };
 }
