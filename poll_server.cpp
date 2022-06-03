@@ -12,24 +12,53 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <poll.h>
+#include "reactor.hpp"
+
+using namespace ex6;
 
 #define PORT "3490"   // Port we're listening on
 
+int fd_count;
+struct pollfd *pfds;
+Reactor *r;
+
+void *runner(void *args) {
+    int r_fd = r->getFD();
+    char buffer[1024];
+    while (true) {
+        bzero(buffer, 1024);
+        int check = recv(r_fd, buffer, strlen(buffer), 0);
+        if (check == 0) {
+            close(r_fd);
+            r->remove_handler();
+            return nullptr;
+        } else {
+            bzero(buffer, 1024);
+            for (int i = 0; i < fd_count + 1; i++) {
+                strcpy(buffer, "Server: ");
+                strcat(buffer, "Hello, World!");
+                strcat(buffer, "\n");
+                send(pfds[i].fd, buffer, strlen(buffer), 0);
+            }
+        }
+    }
+    return nullptr;
+}
+
+
 // Get sockaddr, IPv4 or IPv6:
-void *get_in_addr(struct sockaddr *sa)
-{
+void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
+        return &(((struct sockaddr_in *) sa)->sin_addr);
     }
 
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+    return &(((struct sockaddr_in6 *) sa)->sin6_addr);
 }
 
 // Return a listening socket
-int get_listener_socket(void)
-{
+int get_listener_socket(void) {
     int listener;     // Listening socket descriptor
-    int yes=1;        // For setsockopt() SO_REUSEADDR, below
+    int yes = 1;        // For setsockopt() SO_REUSEADDR, below
     int rv;
 
     struct addrinfo hints, *ai, *p;
@@ -44,7 +73,7 @@ int get_listener_socket(void)
         exit(1);
     }
 
-    for(p = ai; p != NULL; p = p->ai_next) {
+    for (p = ai; p != NULL; p = p->ai_next) {
         listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if (listener < 0) {
             continue;
@@ -77,13 +106,12 @@ int get_listener_socket(void)
 }
 
 // Add a new file descriptor to the set
-void add_to_pfds(struct pollfd *pfds[], int newfd, int *fd_count, int *fd_size)
-{
+void add_to_pfds(struct pollfd *pfds[], int newfd, int *fd_count, int *fd_size) {
     // If we don't have room, add more space in the pfds array
     if (*fd_count == *fd_size) {
         *fd_size *= 2; // Double it
 
-        *pfds = realloc(*pfds, sizeof(**pfds) * (*fd_size));
+        *pfds = static_cast<pollfd *>(realloc(*pfds, sizeof(**pfds) * (*fd_size)));
     }
 
     (*pfds)[*fd_count].fd = newfd;
@@ -93,17 +121,16 @@ void add_to_pfds(struct pollfd *pfds[], int newfd, int *fd_count, int *fd_size)
 }
 
 // Remove an index from the set
-void del_from_pfds(struct pollfd pfds[], int i, int *fd_count)
-{
+void del_from_pfds(struct pollfd pfds[], int i, int *fd_count) {
     // Copy the one from the end over this one
-    pfds[i] = pfds[*fd_count-1];
+    pfds[i] = pfds[*fd_count - 1];
 
     (*fd_count)--;
 }
 
+
 // Main
-int main(void)
-{
+int main(void) {
     int listener;     // Listening socket descriptor
 
     int newfd;        // Newly accept()ed socket descriptor
@@ -118,7 +145,7 @@ int main(void)
     // (We'll realloc as necessary)
     int fd_count = 0;
     int fd_size = 5;
-    struct pollfd *pfds = malloc(sizeof *pfds * fd_size);
+    struct pollfd *pfds = static_cast<pollfd *>(malloc(sizeof *pfds * fd_size));
 
     // Set up and get a listening socket
     listener = get_listener_socket();
@@ -135,7 +162,7 @@ int main(void)
     fd_count = 1; // For the listener
 
     // Main loop
-    for(;;) {
+    for (;;) {
         int poll_count = poll(pfds, fd_count, -1);
 
         if (poll_count == -1) {
@@ -144,7 +171,7 @@ int main(void)
         }
 
         // Run through the existing connections looking for data to read
-        for(int i = 0; i < fd_count; i++) {
+        for (int i = 0; i < fd_count; i++) {
 
             // Check if someone's ready to read
             if (pfds[i].revents & POLLIN) { // We got one!!
@@ -154,7 +181,7 @@ int main(void)
 
                     addrlen = sizeof remoteaddr;
                     newfd = accept(listener,
-                                   (struct sockaddr *)&remoteaddr,
+                                   (struct sockaddr *) &remoteaddr,
                                    &addrlen);
 
                     if (newfd == -1) {
@@ -165,9 +192,11 @@ int main(void)
                         printf("pollserver: new connection from %s on "
                                "socket %d\n",
                                inet_ntop(remoteaddr.ss_family,
-                                         get_in_addr((struct sockaddr*)&remoteaddr),
+                                         get_in_addr((struct sockaddr *) &remoteaddr),
                                          remoteIP, INET6_ADDRSTRLEN),
                                newfd);
+                        r->newReactor();
+                        r->add_handler(&newfd, &runner);
                     }
                 } else {
                     // If not the listener, we're just a regular client
@@ -191,7 +220,7 @@ int main(void)
                     } else {
                         // We got some good data from a client
 
-                        for(int j = 0; j < fd_count; j++) {
+                        for (int j = 0; j < fd_count; j++) {
                             // Send to everyone!
                             int dest_fd = pfds[j].fd;
 

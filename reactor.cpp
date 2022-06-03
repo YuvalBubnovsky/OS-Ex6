@@ -17,7 +17,7 @@ namespace ex6{
     void Reactor::add_handler(int* fd, void *(handler)(void*)){
         this->fd = fd;
         this->handler = handler;
-        pthread_create(&this->thread, nullptr, handler, (void*)fd);
+        pthread_create(&this->thread, nullptr, this->handler, (void*)fd);
     }
 
     void Reactor::remove_handler(){
@@ -29,5 +29,9 @@ namespace ex6{
 
     Reactor::~Reactor() {
         delete this;
+    }
+
+    int Reactor::getFD() {
+        return *this->fd;
     }
 }

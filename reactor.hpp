@@ -18,13 +18,15 @@ namespace ex6 {
 
 
     public:
-        void* newReactor()
+        void* newReactor();
 
         virtual ~Reactor();
 
         void add_handler(int* fd, void *(handler)(void*));
 
         void remove_handler();
+
+        int getFD();
 
     };
 }
