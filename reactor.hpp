@@ -11,14 +11,13 @@
 namespace ex6 {
     class Reactor {
     private:
-        Reactor();
         int* fd;
         pthread_t thread{};
         void*(*handler)(void*);
 
 
     public:
-        void* newReactor();
+        static void* newReactor();
 
         virtual ~Reactor();
 
@@ -28,6 +27,7 @@ namespace ex6 {
 
         int getFD();
 
+        Reactor();
     };
 }
 

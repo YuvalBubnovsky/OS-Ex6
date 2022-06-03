@@ -160,7 +160,7 @@ int main(void) {
     pfds[0].events = POLLIN; // Report ready to read on incoming connection
 
     fd_count = 1; // For the listener
-
+    printf("DEBUG: Server is running on port %s\n", PORT);
     // Main loop
     for (;;) {
         int poll_count = poll(pfds, fd_count, -1);
@@ -195,7 +195,7 @@ int main(void) {
                                          get_in_addr((struct sockaddr *) &remoteaddr),
                                          remoteIP, INET6_ADDRSTRLEN),
                                newfd);
-                        r->newReactor();
+                        r = new Reactor();
                         r->add_handler(&newfd, &runner);
                     }
                 } else {

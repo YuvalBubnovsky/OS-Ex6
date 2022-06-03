@@ -12,6 +12,7 @@ namespace ex6{
 
     void* Reactor::newReactor(){
         Reactor();
+        return nullptr;
     }
 
     void Reactor::add_handler(int* fd, void *(handler)(void*)){
