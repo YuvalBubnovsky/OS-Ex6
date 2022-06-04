@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -fpic
 HEADERS=$(wildcard *.hpp)
 LDFLAGS=-pthread
 
@@ -38,4 +38,4 @@ poll_server.o: $(HEADERS)  poll_server.cpp
 
 
 clean:
-	rm -f server client poll_server  *.o *.a
+	rm -f server client poll_server  *.o *.a *.so
