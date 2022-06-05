@@ -3,9 +3,9 @@ CFLAGS = -g -Wall -fpic
 HEADERS=$(wildcard *.hpp)
 LDFLAGS=-pthread
 
-.PHONY: clean all
+.PHONY: clean all lib
 
-all: server client poll
+all: server client poll lib
 
 lib: server.so client.so poll_server.so
 
